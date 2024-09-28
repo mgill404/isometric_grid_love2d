@@ -1,13 +1,24 @@
-local dirt = love.graphics.newImage("dirt.png", { dpiscale = 0.5 })
+local tile = love.graphics.newImage("blue_tile.png", { dpiscale = 1 })
 
 
 -- Grid and tile settings
-local tileWidth = dirt:getWidth()
+local tileWidth = tile:getWidth()
 local tileHeight = tileWidth/2
 local gridWidth = 5
 local gridHeight = 5
 local tiles = {}
 local hoveredTile = { x = -1, y = -1 } -- Variable to store hovered tile coordinates
+
+local spritesOn = false
+local gridOn = true
+function love.keypressed(key, scancode, isrepeat)
+    if key == "1" then
+       spritesOn = not spritesOn
+    end
+    if key == "2" then
+        gridOn = not gridOn
+     end
+ end
 
 -- Convert Cartesian grid to isometric coordinates
 function toIso(x, y)
@@ -58,30 +69,35 @@ end
 
 -- Draw the grid
 function love.draw()
-    for i = 1, gridWidth do
-        for j = 1, gridHeight do
-            local isoX, isoY = toIso(i, j)
-            love.graphics.draw(dirt, x_offset + isoX - tileWidth/2, y_offset + isoY - tileHeight/2)
+    if spritesOn then
+        love.graphics.setColor({1,1,1})
+        for i = 1, gridWidth do
+            for j = 1, gridHeight do
+                local isoX, isoY = toIso(i, j)
+                love.graphics.draw(tile, x_offset + isoX - tileWidth/2, y_offset + isoY - tileHeight/2)
+            end
         end
     end
 
     for i = 1, gridWidth do
         for j = 1, gridHeight do
             local isoX, isoY = toIso(i, j)
-            local tileColor = tiles[i][j].color
-            love.graphics.setColor(tileColor)
-
-            local mode = 'line'
             if i == hoveredTile.x and j == hoveredTile.y then
-                mode = "fill"
+                love.graphics.setColor({1,1,1,0.3})
+                love.graphics.polygon('fill',
+                    x_offset + isoX, y_offset + isoY, -- Offset to center the grid
+                    x_offset + isoX + tileWidth / 2, y_offset + isoY + tileHeight / 2,
+                    x_offset + isoX, y_offset + isoY + tileHeight,
+                    x_offset + isoX - tileWidth / 2, y_offset + isoY + tileHeight / 2)
             end
-            
-            -- Fill the hovered tile
-            love.graphics.polygon(mode,
-                x_offset + isoX, y_offset + isoY, -- Offset to center the grid
-                x_offset + isoX + tileWidth / 2, y_offset + isoY + tileHeight / 2,
-                x_offset + isoX, y_offset + isoY + tileHeight,
-                x_offset + isoX - tileWidth / 2, y_offset + isoY + tileHeight / 2)
+            if gridOn then
+                love.graphics.setColor({1,1,1})
+                love.graphics.polygon('line',
+                    x_offset + isoX, y_offset + isoY, -- Offset to center the grid
+                    x_offset + isoX + tileWidth / 2, y_offset + isoY + tileHeight / 2,
+                    x_offset + isoX, y_offset + isoY + tileHeight,
+                    x_offset + isoX - tileWidth / 2, y_offset + isoY + tileHeight / 2)
+            end
         end
     end
 
