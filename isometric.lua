@@ -1,10 +1,14 @@
 IsometricGrid = Object:extend()
 
 -- options {
---      gridWidth:
---      gridHeight:
---      
--- 
+--      gridWidth: Grid width in cells
+--      gridHeight: Grid height in cells
+--      centerX: The X position that the center of the table will be placed. Defaults to screen center
+--      centerY: The Y position that the center of the table will be placed. Defaults to screen center
+--      spritesOn: Enables sprite rendering
+--      gridOn: Enables a polygon grid on top of the sprites
+--      centerDot: Places a dot in the center of the screen
+--      gridIndexOn: Prints grid x,y indicies on hovered tile
 -- }
 -- center x,y: location to place the center of the grid
 -- enabled_tiles: a 2D table showing which tiles to enable
