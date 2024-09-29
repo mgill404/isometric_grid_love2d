@@ -3,6 +3,9 @@ IsometricGrid = Object:extend()
 -- options {
 --      gridWidth: Grid width in cells
 --      gridHeight: Grid height in cells
+--      tiles: 
+
+
 --      centerX: The X position that the center of the table will be placed. Defaults to screen center
 --      centerY: The Y position that the center of the table will be placed. Defaults to screen center
 --      spritesOn: Enables sprite rendering
@@ -10,8 +13,6 @@ IsometricGrid = Object:extend()
 --      centerDot: Places a dot in the center of the screen
 --      gridIndexOn: Prints grid x,y indicies on hovered tile
 -- }
--- center x,y: location to place the center of the grid
--- enabled_tiles: a 2D table showing which tiles to enable
 function IsometricGrid:new(tile_file, options)
     options = options or {}
 
@@ -21,6 +22,14 @@ function IsometricGrid:new(tile_file, options)
     
     self.gridWidth = options.gridWidth or 2
     self.gridHeight = options.gridHeight or 2
+
+    self.tiles = {}
+    for i = 1, self.gridWidth do
+        self.tiles[i] = {}
+        for j = 1, self.gridHeight do
+            self.tiles[i][j] = { enabled = true }
+        end
+    end
 
     self.centerX = options.centerX or love.graphics.getWidth()/2
     self.centerY = options.centerY or love.graphics.getHeight()/2
@@ -33,19 +42,15 @@ function IsometricGrid:new(tile_file, options)
     
     self.mouseClick = false
 
-    self.tiles = {}
-    for i = 1, self.gridWidth do
-        self.tiles[i] = {}
-        for j = 1, self.gridHeight do
-            self.tiles[i][j] = { enabled = true }
-        end
-    end
-
     -- some debugging options
     self.spritesOn = options.spritesOn or true
     self.gridOn = options.gridOn or false
     self.centerDot = options.centerDot or false
     self.gridIndexOn = options.gridIndexOn or false
+end
+
+function IsometricGrid:print()
+    
 end
 
 function IsometricGrid:center()
@@ -81,7 +86,7 @@ end
 function IsometricGrid:addColumn()
     self.gridHeight = self.gridHeight + 1
     for i = 1, self.gridWidth do
-        self.tiles[i][self.gridHeight] = { enabled = true }
+        self.tiles[i][#self.tiles[i] + 1] = { enabled = true }
     end
     self:center()
 end
@@ -101,6 +106,8 @@ function IsometricGrid:keypressed(key, scancode, isrepeat)
         self:addColumn()
     elseif key == "7" then
         self:removeColumn()
+    elseif key == "p" then
+        self:print()
     end
  end
 
@@ -116,12 +123,12 @@ function IsometricGrid:detectHover()
     if gridX >= 1 and gridX <= self.gridWidth and gridY >= 1 and gridY <= self.gridHeight then
         if self.mouseClick then
             self.tiles[gridX][gridY].enabled = not self.tiles[gridX][gridY].enabled
-            self.mouseClick = nil
         end
         self.hovered.x, self.hovered.y = gridX, gridY
     else
         self.hovered.x, self.hovered.y = -1, -1 -- No tile hovered
     end
+    self.mouseClick = false
 end
 
 function IsometricGrid:update(dt)
@@ -132,7 +139,7 @@ function IsometricGrid:draw()
     if self.spritesOn then
         love.graphics.setColor({1,1,1})
         for i = 1, self.gridWidth do
-            for j = 1, self.gridHeight do
+            for j = 1, #self.tiles[i] do
                 if self.tiles[i][j].enabled then
                     local isoX, isoY = self:toIso(i, j)
                     love.graphics.draw(self.tile, self.offsetX + isoX - self.tileWidth/2, self.offsetY + isoY - self.tileHeight/2)
@@ -142,7 +149,7 @@ function IsometricGrid:draw()
     end
 
     for i = 1, self.gridWidth do
-        for j = 1, self.gridHeight do
+        for j = 1, #self.tiles[i] do
             local isoX, isoY = self:toIso(i, j)
             -- highlight hovered tile
             if i == self.hovered.x and j == self.hovered.y then
