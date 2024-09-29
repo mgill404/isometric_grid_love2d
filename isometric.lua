@@ -84,26 +84,20 @@ end
 
 function IsometricGrid:keypressed(key, scancode, isrepeat)
     if key == "1" then
-       self.spritesOn = not self.spritesOn
-    end
-    if key == "2" then
+        self.spritesOn = not self.spritesOn
+    elseif key == "2" then
         self.gridOn = not self.gridOn
-     end
-     if key == "3" then
+    elseif key == "3" then
         self.centerDot = not self.centerDot
-     end
-     if key == "4" then
+    elseif key == "4" then
         self:addRow()
-     end
-     if key == "5" then
+    elseif key == "5" then
         self:removeRow()
-     end
-     if key == "6" then
+    elseif key == "6" then
         self:addColumn()
-     end
-     if key == "7" then
+    elseif key == "7" then
         self:removeColumn()
-     end
+    end
  end
 
 function IsometricGrid:mousepressed(x, y, button, istouch)
