@@ -13,23 +13,35 @@ IsometricGrid = Object:extend()
 --      centerDot: Places a dot in the center of the screen
 --      gridIndexOn: Prints grid x,y indicies on hovered tile
 -- }
-function IsometricGrid:new(tile_file, options)
+function IsometricGrid:new(tileImage, options)
     options = options or {}
 
-    self.tile = love.graphics.newImage(tile_file, { dpiscale = 1 })
+    self.tile = love.graphics.newImage(tileImage, { dpiscale = 1 })
     self.tileWidth = self.tile:getWidth()
     self.tileHeight = self.tileWidth/2
     
-    self.gridWidth = options.gridWidth or 2
-    self.gridHeight = options.gridHeight or 2
-
-    self.tiles = {}
-    for i = 1, self.gridWidth do
-        self.tiles[i] = {}
-        for j = 1, self.gridHeight do
-            self.tiles[i][j] = { enabled = true }
+    if options.gridFile then
+        local file = io.open(options.gridFile)
+        local content = file:read "*a"
+        file:close()
+        self.tiles = json.decode(content)
+        self.gridWidth = #self.tiles
+        self.gridHeight = 0
+        for i = 1, #self.tiles do
+            self.gridHeight = math.max(self.gridHeight, #self.tiles[i])
+        end
+    else
+        self.gridWidth = options.gridWidth or 2
+        self.gridHeight = options.gridHeight or 2
+        self.tiles = {}
+        for i = 1, self.gridWidth do
+            self.tiles[i] = {}
+            for j = 1, self.gridHeight do
+                self.tiles[i][j] = { enabled = true }
+            end
         end
     end
+
 
     self.centerX = options.centerX or love.graphics.getWidth()/2
     self.centerY = options.centerY or love.graphics.getHeight()/2
@@ -50,7 +62,7 @@ function IsometricGrid:new(tile_file, options)
 end
 
 function IsometricGrid:print()
-    
+    print(json.encode(self.tiles))
 end
 
 function IsometricGrid:center()

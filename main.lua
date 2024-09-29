@@ -1,9 +1,12 @@
 Object = require "lib.classic.classic"
+json = require "lib.dkjson.dkjson"
 require "isometric"
 
 -- Load the grid
 function love.load()
-    grid = IsometricGrid("blue_tile.png")
+    grid = IsometricGrid("blue_tile.png", {
+        gridFile = "grid.json"
+    })
 end
 
 function love.keypressed(key, scancode, isrepeat)
