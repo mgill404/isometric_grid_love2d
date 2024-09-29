@@ -1,21 +1,29 @@
 IsometricGrid = Object:extend()
 
+-- options {
+--      cell_w:
+-- 
+-- 
+-- 
+-- }
 -- center x,y: location to place the center of the grid
 -- enabled_tiles: a 2D table showing which tiles to enable
-function IsometricGrid:new(tile_file, cells_w, cells_h, center_x, center_y, options)
+function IsometricGrid:new(tile_file, options)
+    options = options or {}
+
     self.tile = love.graphics.newImage(tile_file, { dpiscale = 1 })
     self.tileWidth = self.tile:getWidth()
     self.tileHeight = self.tileWidth/2
     
-    self.gridWidth = cells_w
-    self.gridHeight = cells_h
+    self.gridWidth = options.gridWidth or 2
+    self.gridHeight = options.gridHeight or 2
 
-    self.center_x = center_x
-    self.center_y = center_y
+    self.center_x = options.center_x or love.graphics.getWidth()/2
+    self.center_y = options.center_y or love.graphics.getHeight()/2
     self:center()
     
-    self.offset_x = center_x - self:toIsoX(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
-    self.offset_y = center_y - self:toIsoY(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
+    self.offset_x = self.center_x - self:toIsoX(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
+    self.offset_y = self.center_y - self:toIsoY(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
 
     self.hovered = { x = -1, y = -1 }
     
@@ -30,7 +38,6 @@ function IsometricGrid:new(tile_file, cells_w, cells_h, center_x, center_y, opti
     end
 
     -- some debugging options
-    options = options or {}
     self.spritesOn = options.spritesOn or true
     self.gridOn = options.gridOn or false
     self.centerDot = options.centerDot or false

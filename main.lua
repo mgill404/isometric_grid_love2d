@@ -3,7 +3,7 @@ require "isometric"
 
 -- Load the grid
 function love.load()
-    grid = IsometricGrid("blue_tile.png", 5, 5, game_w/2, game_h/2)
+    grid = IsometricGrid("blue_tile.png")
 end
 
 function love.keypressed(key, scancode, isrepeat)
