@@ -19,9 +19,6 @@ function love.update(dt)
     grid:update(dt)
 end
 
--- Draw the grid
 function love.draw()
     grid:draw()
-    
-    love.graphics.print('mouse x: '..tostring(love.mouse.getX())..' y: '..tostring(love.mouse.getY()))
 end
