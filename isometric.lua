@@ -2,18 +2,22 @@ IsometricGrid = Object:extend()
 
 -- center x,y: location to place the center of the grid
 -- enabled_tiles: a 2D table showing which tiles to enable
-function IsometricGrid:new(tile_file, cells_w, cells_h, center_x, center_y)
+function IsometricGrid:new(tile_file, cells_w, cells_h, center_x, center_y, options)
     self.tile = love.graphics.newImage(tile_file, { dpiscale = 1 })
     self.tileWidth = self.tile:getWidth()
     self.tileHeight = self.tileWidth/2
     
     self.gridWidth = cells_w
     self.gridHeight = cells_h
+
+    self.center_x = center_x
+    self.center_y = center_y
+    self:center()
     
     self.offset_x = center_x - self:toIsoX(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
     self.offset_y = center_y - self:toIsoY(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
 
-    self.hoveredTile = { x = -1, y = -1 }
+    self.hovered = { x = -1, y = -1 }
     
     self.mouseClick = false
 
@@ -25,10 +29,50 @@ function IsometricGrid:new(tile_file, cells_w, cells_h, center_x, center_y)
         end
     end
 
-    -- some debugging stuff
-    self.spritesOn = true
-    self.gridOn = true
-    self.centerDot = true
+    -- some debugging options
+    options = options or {}
+    self.spritesOn = options.spritesOn or true
+    self.gridOn = options.gridOn or false
+    self.centerDot = options.centerDot or false
+    self.gridIndexOn = options.gridIndexOn or false
+end
+
+function IsometricGrid:center()
+    self.offset_x = self.center_x - self:toIsoX(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
+    self.offset_y = self.center_y - self:toIsoY(self.gridWidth/2 + 1, self.gridHeight/2 + 1)
+end
+
+function IsometricGrid:removeRow()
+    if self.gridWidth == 1 then return end
+    self.gridWidth = self.gridWidth - 1
+    table.remove(self.tiles)
+    self:center()
+end
+
+function IsometricGrid:removeColumn()
+    if self.gridHeight == 1 then return end
+    self.gridHeight = self.gridHeight - 1
+    for i = 1, self.gridWidth do
+        table.remove(self.tiles[i])
+    end
+    self:center()
+end
+
+function IsometricGrid:addRow()
+    self.gridWidth = self.gridWidth + 1
+    self.tiles[self.gridWidth] = {}
+    for j = 1, self.gridHeight do
+        self.tiles[self.gridWidth][j] = { enabled = true }
+    end
+    self:center()
+end
+
+function IsometricGrid:addColumn()
+    self.gridHeight = self.gridHeight + 1
+    for i = 1, self.gridWidth do
+        self.tiles[i][self.gridHeight] = { enabled = true }
+    end
+    self:center()
 end
 
 function IsometricGrid:keypressed(key, scancode, isrepeat)
@@ -40,6 +84,18 @@ function IsometricGrid:keypressed(key, scancode, isrepeat)
      end
      if key == "3" then
         self.centerDot = not self.centerDot
+     end
+     if key == "4" then
+        self:addRow()
+     end
+     if key == "5" then
+        self:removeRow()
+     end
+     if key == "6" then
+        self:addColumn()
+     end
+     if key == "7" then
+        self:removeColumn()
      end
  end
 
@@ -57,9 +113,9 @@ function IsometricGrid:detectHover()
             self.tiles[gridX][gridY].enabled = not self.tiles[gridX][gridY].enabled
             self.mouseClick = nil
         end
-        self.hoveredTile.x, self.hoveredTile.y = gridX, gridY
+        self.hovered.x, self.hovered.y = gridX, gridY
     else
-        self.hoveredTile.x, self.hoveredTile.y = -1, -1 -- No tile hovered
+        self.hovered.x, self.hovered.y = -1, -1 -- No tile hovered
     end
 end
 
@@ -84,7 +140,7 @@ function IsometricGrid:draw()
         for j = 1, self.gridHeight do
             local isoX, isoY = self:toIso(i, j)
             -- highlight hovered tile
-            if i == self.hoveredTile.x and j == self.hoveredTile.y then
+            if i == self.hovered.x and j == self.hovered.y then
                 love.graphics.setColor({1,1,1,0.3})
                 love.graphics.polygon('fill',
                     self.offset_x + isoX, self.offset_y + isoY, -- Offset to center the grid
@@ -92,7 +148,9 @@ function IsometricGrid:draw()
                     self.offset_x + isoX, self.offset_y + isoY + self.tileHeight,
                     self.offset_x + isoX - self.tileWidth / 2, self.offset_y + isoY + self.tileHeight / 2)
                 love.graphics.setColor({1,1,1})
-                love.graphics.print(tostring(i).." "..tostring(j), self.offset_x + isoX, self.offset_y + isoY + self.tileHeight/2)
+                if self.gridIndexOn then
+                    love.graphics.print(tostring(i).." "..tostring(j), self.offset_x + isoX, self.offset_y + isoY + self.tileHeight/2)
+                end
             end
 
             -- draw grid with lines
